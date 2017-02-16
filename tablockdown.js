@@ -27,7 +27,7 @@ var TabLockdownController = {
 		var enteredPassword = window.prompt("Password");
 		tabModel.password = enteredPassword;
 
-		var codeJS = "document.body.style.visibility = 'hidden';";
+		var codeJS = "document.body.style.cssText = 'display: none !important';";
 		chrome.tabs.executeScript(tabModel.tabId, { code: codeJS });
 
 		tabModel.isLocked = true;
@@ -37,7 +37,7 @@ var TabLockdownController = {
 		var enteredPassword = window.prompt("Password");
 		if (!enteredPassword || enteredPassword !== tabModel.password) return;
 
-		var codeJS = "document.body.style.visibility = 'visible';";
+		var codeJS = "document.body.style.cssText = '';";
 		chrome.tabs.executeScript(tabModel.tabId, { code: codeJS });
 		
 		tabModel.isLocked = false;
