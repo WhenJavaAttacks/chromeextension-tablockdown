@@ -7,7 +7,7 @@
 	"permissions": ["activeTab"],
 
 	"background": {
-		"scripts": ["tablockdown.js"],
+		"scripts": ["TabLockdownController.js"],
 		"persistent": false
 	},
 
