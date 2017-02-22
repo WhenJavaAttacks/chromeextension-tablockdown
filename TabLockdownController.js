@@ -4,7 +4,7 @@ var TabLockdownController = {
 		chrome.browserAction.onClicked.addListener(function(tab) {
 			TabLockdownController.toggleTabLock(TabLockdownController.getTabModelForTab(tab))
 		});
-		console.log("TabLockdown - Extension Initalized");
+		console.log("Tab Lockdown - Extension Initalized");
 	},
 	getTabModelForTab: function(tab) {
 		var tabModelKey = "id"+tab.id;
@@ -19,10 +19,7 @@ var TabLockdownController = {
 			password: ""
 		};
 
-		var tabLockdownClientCode = "var TabLockdownClient = {};";
-		tabLockdownClientCode += "TabLockdownClient.interceptClick = function(e) { console.log('TabLockdown - Intercepted Click'); e.stopPropagation(); return false; };";
-		tabLockdownClientCode += "console.log('TabLockdown - Tab " + tabModel.tabId + " Initalized');"
-		chrome.tabs.executeScript(tabModel.tabId, { code: tabLockdownClientCode });
+		chrome.tabs.executeScript(tabModel.tabId, { file: "TabLockdownClient.js" });
 
 		return tabModel;
 	},
@@ -31,36 +28,25 @@ var TabLockdownController = {
 		else TabLockdownController.unlockTab(tabModel);
 	},
 	lockTab: function(tabModel) {
-		var enteredPassword = window.prompt("Password");
-		tabModel.password = enteredPassword;
+		tabModel.password = window.prompt("Password");
 
-		var codeJS = "";
-		//codeJS += "document.body.style.cssText = 'visibility: none !important';";
-		//codeJS += "document.body.style.cssText = 'display: none !important';";
-		//codeJS += "document.onclick = function() { return false; };";
-		codeJS += "document.addEventListener('click', TabLockdownClient.interceptClick, true);";
-		codeJS += "document.body.style.cssText = 'filter: blur(10px) !important; pointer-events: none !important;';";
-		
+		var codeJS = "TabLockdownClient.lockTab();";
 		chrome.tabs.executeScript(tabModel.tabId, { code: codeJS });
 
 		tabModel.isLocked = true;
 		chrome.browserAction.setIcon({ path: "padlock_locked.png", tabId: tabModel.tabId });
-		console.log("TabLockdown - Tab " + tabModel.tabId + " Locked");
+		console.log("Tab Lockdown - Tab " + tabModel.tabId + " Locked");
 	},
 	unlockTab: function(tabModel) {
 		var enteredPassword = window.prompt("Password");
 		if (!enteredPassword || enteredPassword !== tabModel.password) return;
 		
-		var codeJS = "";
-		//codeJS += "document.onclick = null;";
-		codeJS += "document.removeEventListener('click', TabLockdownClient.interceptClick, true);";
-		codeJS += "document.body.style.cssText = '';";
-		
+		var codeJS = "TabLockdownClient.unlockTab();";
 		chrome.tabs.executeScript(tabModel.tabId, { code: codeJS });
 		
 		tabModel.isLocked = false;
 		chrome.browserAction.setIcon({ path: "padlock_unlocked.png", tabId: tabModel.tabId });
-		console.log("TabLockdown - Tab " + tabModel.tabId + " Unlocked");
+		console.log("Tab Lockdown - Tab " + tabModel.tabId + " Unlocked");
 	}
 };
 
